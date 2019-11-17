@@ -16,7 +16,7 @@ public class Enemy : MonoBehaviour
     float m_timer = 2;
     int m_life = 15;
 
-    //protected EnemySpawn m_spawn;
+    protected EnemySpawn m_spawn;
 
     void Start()
     {
@@ -90,11 +90,13 @@ public class Enemy : MonoBehaviour
             }
         }
         // 如果处于死亡且不是过渡状态
-        if (stateInfo.fullPathHash == Animator.StringToHash("Base Layer.death"))
+        if (stateInfo.fullPathHash == Animator.StringToHash("Base Layer.death") &&
+            !m_ani.IsInTransition(0))
         {
             m_ani.SetBool("death", false);
             if (stateInfo.normalizedTime >= 1.0f)
             {
+                m_spawn.m_enemyCount--;
                 GameManager.Instance.SetScore(100);
                 Destroy(this.gameObject);
             }
@@ -117,5 +119,11 @@ public class Enemy : MonoBehaviour
             m_ani.SetBool("death", true);
             m_agent.ResetPath();
         } 
+    }
+
+    public void Init(EnemySpawn spawn)
+    {
+        m_spawn = spawn;
+        m_spawn.m_enemyCount++;
     }
 }
