@@ -86,6 +86,17 @@ public class Enemy : MonoBehaviour
             {
                 m_ani.SetBool("idle", true);
                 m_timer = 2;
+                m_player.OnDamage(1);
+            }
+        }
+        // 如果处于死亡且不是过渡状态
+        if (stateInfo.fullPathHash == Animator.StringToHash("Base Layer.death"))
+        {
+            m_ani.SetBool("death", false);
+            if (stateInfo.normalizedTime >= 1.0f)
+            {
+                GameManager.Instance.SetScore(100);
+                Destroy(this.gameObject);
             }
         }
     }
@@ -96,5 +107,15 @@ public class Enemy : MonoBehaviour
         Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir,
             m_rotSpeed * Time.deltaTime, 0.0f);
         m_transform.rotation = Quaternion.LookRotation(newDir);
+    }
+
+    public void OnDamage(int damage)
+    {
+        m_life -= damage;
+        if (m_life < 0)
+        {
+            m_ani.SetBool("death", true);
+            m_agent.ResetPath();
+        } 
     }
 }
